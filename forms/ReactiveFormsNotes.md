@@ -54,3 +54,8 @@ Retains form value - when input element value is changed by user input, the valu
 ### Form Directives
 ![directives](FormDirectivesBoth.png)
 
+####Reactive Transformation
+Useful when we need to manipulate emitted events. For Ex, Showing an error message right after user enters into a form field is not so cool. we need to give user sometime to finish typing.  debounceTime comes in handy here where it delays user emitting event for a certain amount of time.
+![Reactive Transformation](ReactiveTransformationsDebounceTime.png)
+![Reactive Transformation1](ThrottleDistinctUntilChanged.png)
+

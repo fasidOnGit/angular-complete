@@ -1,7 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {Customer} from './customer';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {AbstractControl, FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {emailMatcher, ratingRange} from './custom-validators';
+import {debounceTime} from 'rxjs/operators';
 
 @Component({
   selector: 'app-customer',
@@ -11,6 +12,19 @@ import {emailMatcher, ratingRange} from './custom-validators';
 export class CustomerComponent implements OnInit {
   customerForm: FormGroup;
   customer = new Customer();
+  emailMessage: string;
+
+  private validationMessages = {
+    required: 'Please enter your email address.',
+    email: 'Please enter a valid email address'
+  };
+
+  /**
+   * Getter is useful here because we cannot accidentally assign values to FormArray.
+   */
+  get addresses(): FormArray {
+    return this.customerForm.get('addresses') as FormArray;
+  }
 
   constructor(
     private fb: FormBuilder
@@ -33,8 +47,26 @@ export class CustomerComponent implements OnInit {
       phone: '',
       notification: 'email',
       rating: [null, ratingRange(1, 5)],
-      sendCatalog: true
+      sendCatalog: true,
+      addresses: this.fb.array([this.buildAddress()])
     });
+
+    /**
+     * Watch for value changes on FormControl/FormGroup etc,,
+     */
+    this.customerForm.get('notification').valueChanges.subscribe(
+      value => this.setNotification(value)
+    );
+
+    /**
+     * Setting error messages for email formControl from component class.
+     */
+    const emailControl = this.customerForm.get('emailGroup.email');
+    emailControl.valueChanges.pipe(
+      debounceTime(1000)
+    ).subscribe(
+      value => this.setMessage(emailControl)
+    );
   }
 
   save() {
@@ -42,6 +74,26 @@ export class CustomerComponent implements OnInit {
     console.log('Saved: ' + JSON.stringify(this.customerForm.value));
   }
 
+  /**
+   * Pushes a Address FormGroup into the formArray.
+   */
+  addAddress(): void  {
+    this.addresses.push(this.buildAddress());
+  }
+
+  /**
+   * Generates FormGroup
+   */
+  buildAddress(): FormGroup {
+    return this.fb.group({
+      addressType: 'home',
+      street1: '',
+      street2: '',
+      city: '',
+      state: '',
+      zip: ''
+    });
+  }
   /**
    * Need to set values for all of the form control in the form group
    */
@@ -74,5 +126,18 @@ export class CustomerComponent implements OnInit {
       phoneControl.clearValidators();
     }
     phoneControl.updateValueAndValidity();
+  }
+
+  /**
+   * Sets Error messages from component class.
+   * @param c FormControl to set the error message to.
+   */
+  setMessage(c: AbstractControl): void {
+    this.emailMessage = '';
+    if ((c.touched || c.dirty) && c.errors) {
+      this.emailMessage = Object.keys(c.errors).map(
+        key => this.validationMessages[key]
+      ).join(' ');
+    }
   }
 }
