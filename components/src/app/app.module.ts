@@ -12,6 +12,10 @@ import { RecipeDetailComponent } from './recipes/recipe-detail/recipe-detail.com
 import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import {AuthInterceptor} from '../http/auth.interceptor';
 import {Another} from '../http/another.interceptor';
+import {AuthComponent} from '../auth/auth.component';
+import {RecipeStartComponent} from './recipes/recipe-start.component';
+import {RecipeEditComponent} from './recipes/recipe-edit.component';
+import {AppRouting} from './app-routing.module';
 
 @NgModule({
   declarations: [
@@ -22,11 +26,15 @@ import {Another} from '../http/another.interceptor';
     RecipesItemComponent,
     ShoppingListComponent,
     ShoppingEditComponent,
-    RecipeDetailComponent
+    RecipeDetailComponent,
+    RecipeStartComponent,
+    RecipeEditComponent,
+    AuthComponent
   ],
   imports: [
     BrowserModule,
-    HttpClientModule
+    HttpClientModule,
+    AppRouting
   ],
   // Order of interceptors matters as they as executed in the order that they were given.
   providers: [{
