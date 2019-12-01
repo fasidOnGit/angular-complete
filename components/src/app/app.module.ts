@@ -9,6 +9,9 @@ import { RecipesItemComponent } from './recipes/recipes-list/recipes-item/recipe
 import { ShoppingListComponent } from './shopping-list/shopping-list.component';
 import { ShoppingEditComponent } from './shopping-list/shopping-edit/shopping-edit.component';
 import { RecipeDetailComponent } from './recipes/recipe-detail/recipe-detail.component';
+import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
+import {AuthInterceptor} from '../http/auth.interceptor';
+import {Another} from '../http/another.interceptor';
 
 @NgModule({
   declarations: [
@@ -22,9 +25,19 @@ import { RecipeDetailComponent } from './recipes/recipe-detail/recipe-detail.com
     RecipeDetailComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    HttpClientModule
   ],
-  providers: [],
+  // Order of interceptors matters as they as executed in the order that they were given.
+  providers: [{
+    provide: HTTP_INTERCEPTORS,
+    useClass: AuthInterceptor,
+    multi: true
+  }, {
+    provide: HTTP_INTERCEPTORS,
+    useClass: Another,
+    multi: true
+  }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
